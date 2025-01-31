@@ -1,6 +1,6 @@
 # Hello World!
 
-# Architecture Diagram
+### Architecture Diagram
 ![Alt Text](./diagram.drawio.png)
 
 Here's a `README.md` file for your GitHub repository:
