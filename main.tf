@@ -82,11 +82,15 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
   payload_format_version = "2.0"
 }
 
-# Create a route for the API
+# Create route with Cognito JWT Authorizer
 resource "aws_apigatewayv2_route" "my_route" {
-  api_id        = aws_apigatewayv2_api.my_http_api.id
-  route_key     = "ANY /helloworld" # Change "/helloworld" to your desired path
-  target        = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  api_id      = aws_apigatewayv2_api.my_http_api.id
+  route_key   = "ANY /helloworld"  
+  target      = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  
+  # Attach JWT Authorizer
+  authorizer_id     = aws_apigatewayv2_authorizer.cognito_authorizer.id
+  authorization_type = "JWT"
 }
 
 # Create stage for the API
@@ -151,6 +155,7 @@ resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
 
   depends_on = [aws_cognito_user_pool_client.my_user_pool_client]
 }
+
 ##################################
 ##################################
 output "repository_url" {
