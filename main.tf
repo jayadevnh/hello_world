@@ -64,6 +64,8 @@ resource "aws_lambda_function" "my_lambda_function" {
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_ecr_repo.repository_url}:latest"
   timeout       = 10
+  
+  depends_on = [null_resource.build_and_push_docker_image]
 }
 
 # Create API Gateway HTTP API
@@ -116,5 +118,5 @@ output "lambda_function_name" {
 
 output "api_endpoint" {
   description = "The endpoint of the API Gateway."
-  value       = "${aws_apigatewayv2_api.my_http_api.api_endpoint}/helloworld" # Change "/helloworld" to match your route
+  value       = "${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld" # Change "/helloworld" to match your route
 }
