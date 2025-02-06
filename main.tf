@@ -114,7 +114,7 @@ resource "aws_lambda_permission" "allow_api_gateway" {
 # Cognito User Pool
 resource "aws_cognito_user_pool" "my_user_pool" {
   name                     = "my-user-pool"
-  alias_attributes         = ["email"]
+  alias_attributes         = ["email","phone_number","preferred_username"]
   auto_verified_attributes = ["email"]
 
   # Required attributes for sign-up
