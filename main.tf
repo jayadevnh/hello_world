@@ -2,6 +2,19 @@ provider "aws" {
   region = "us-east-1" # Change this to your desired region
 }
 
+############################################
+
+# Configure the S3 backend
+terraform {
+  backend "s3" {
+    bucket = "hello-world-tf-state-820242915362"
+    key    = "terraform.tfstate"
+    region = "us-east-1" # Change this to your desired region
+  }
+}
+
+############################################
+
 resource "aws_ecr_repository" "my_ecr_repo" {
   name = "my-app-repo" # Replace with your repository name
 
@@ -132,7 +145,7 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   allowed_oauth_flows           = ["code", "implicit"]
   explicit_auth_flows           = ["ALLOW_USER_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
   generate_secret               = true
-  allowed_oauth_scopes          = ["email", "openid", "phone"]
+  allowed_oauth_scopes          = ["email", "openid", "phone","profile"]
   callback_urls                 = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
   supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
