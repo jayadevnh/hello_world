@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1" # Change this to your desired region
+  region = var.region
 }
 
 ############################################
@@ -76,7 +76,7 @@ resource "aws_lambda_function" "my_lambda_function" {
   role          = aws_iam_role.lambda_exec_role.arn
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_ecr_repo.repository_url}:latest"
-  timeout       = 10
+  timeout       = var.lambda_timeout
 
   depends_on = [null_resource.build_and_push_docker_image]
 }
@@ -97,12 +97,12 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 
 # Create route with Cognito JWT Authorizer
 resource "aws_apigatewayv2_route" "my_route" {
-  api_id      = aws_apigatewayv2_api.my_http_api.id
-  route_key   = "ANY /helloworld"  
-  target      = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-  
+  api_id    = aws_apigatewayv2_api.my_http_api.id
+  route_key = "ANY /helloworld"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+
   # Attach JWT Authorizer
-  authorizer_id     = aws_apigatewayv2_authorizer.cognito_authorizer.id
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_authorizer.id
   authorization_type = "JWT"
 }
 
@@ -127,7 +127,7 @@ resource "aws_lambda_permission" "allow_api_gateway" {
 # Cognito User Pool
 resource "aws_cognito_user_pool" "my_user_pool" {
   name                     = "my-user-pool"
-  alias_attributes         = ["email","phone_number","preferred_username"]
+  alias_attributes         = ["email", "phone_number", "preferred_username"]
   auto_verified_attributes = ["email"]
 
   # Required attributes for sign-up
@@ -145,14 +145,14 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   allowed_oauth_flows           = ["code", "implicit"]
   explicit_auth_flows           = ["ALLOW_USER_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
   generate_secret               = true
-  allowed_oauth_scopes          = ["email", "openid", "phone","profile"]
+  allowed_oauth_scopes          = ["email", "openid", "phone"]
   callback_urls                 = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
   supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
 }
 
 resource "aws_cognito_user_pool_domain" "my_user_pool_domain" {
-  domain       = "my-app-domain-unique" # Change this to your desired domain
+  domain       = var.domain_name
   user_pool_id = aws_cognito_user_pool.my_user_pool.id
 }
 
@@ -169,101 +169,5 @@ resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
   depends_on = [aws_cognito_user_pool_client.my_user_pool_client]
 }
 
-###### ##### ###### ### ###### ##### ###### ###
-resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "my-frontend-website-hello-world-jd"
-  
-  tags = {
-    Name = "Frontend Hosting Bucket"
-  }
-}
-
-# Separate website configuration
-resource "aws_s3_bucket_website_configuration" "frontend_bucket_website" {
-  bucket = aws_s3_bucket.frontend_bucket.id
-
-  index_document {
-    suffix = "index.html"
-  }
-}
-
-# Disable public access block settings
-resource "aws_s3_bucket_public_access_block" "frontend_bucket_access_block" {
-  bucket = aws_s3_bucket.frontend_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-# Enforce Object Ownership
-resource "aws_s3_bucket_ownership_controls" "frontend_bucket_ownership" {
-  bucket = aws_s3_bucket.frontend_bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerEnforced"
-  }
-}
-
-# Bucket Policy for Public Access
-resource "aws_s3_bucket_policy" "frontend_policy" {
-  bucket = aws_s3_bucket.frontend_bucket.id
-
-  policy = jsonencode({
-    Version   = "2012-10-17",
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject",
-        Effect    = "Allow",
-        Principal = "*",
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.frontend_bucket.arn}/*"
-      }
-    ]
-  })
-}
-
-resource "aws_s3_object" "index_html" {
-  bucket       = aws_s3_bucket.frontend_bucket.id
-  key          = "index.html"
-  source       = "index.html"
-  content_type = "text/html"
-}
-
-
-
-##################################
-##################################
-output "repository_url" {
-  description = "The URL of the ECR repository."
-  value       = aws_ecr_repository.my_ecr_repo.repository_url
-}
-
-output "lambda_function_name" {
-  value = aws_lambda_function.my_lambda_function.function_name
-}
-
-output "api_endpoint" {
-  description = "The endpoint of the API Gateway."
-  value       = "${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld" # Change "/helloworld" to match your route
-}
-
-output "cognito_user_pool_id" {
-  description = "The ID of the Cognito User Pool."
-  value       = aws_cognito_user_pool.my_user_pool.id
-}
-
-output "cognito_app_client_id" {
-  description = "The ID of the Cognito App Client."
-  value       = aws_cognito_user_pool_client.my_user_pool_client.id
-}
-
-output "cognito_domain" {
-  description = "The domain for the Cognito User Pool."
-  value       = aws_cognito_user_pool_domain.my_user_pool_domain.domain
-}
-
-output "cognito_issuer_url" {
-  value = "https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.my_user_pool.id}"
-}
+###############################
+###############################
