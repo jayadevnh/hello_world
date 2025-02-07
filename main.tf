@@ -169,6 +169,70 @@ resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
   depends_on = [aws_cognito_user_pool_client.my_user_pool_client]
 }
 
+###### ##### ###### ### ###### ##### ###### ###
+resource "aws_s3_bucket" "frontend_bucket" {
+  bucket = "my-frontend-website-hello-world-jd"
+  
+  tags = {
+    Name = "Frontend Hosting Bucket"
+  }
+}
+
+# Separate website configuration
+resource "aws_s3_bucket_website_configuration" "frontend_bucket_website" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+# Disable public access block settings
+resource "aws_s3_bucket_public_access_block" "frontend_bucket_access_block" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Enforce Object Ownership
+resource "aws_s3_bucket_ownership_controls" "frontend_bucket_ownership" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+# Bucket Policy for Public Access
+resource "aws_s3_bucket_policy" "frontend_policy" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "${aws_s3_bucket.frontend_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_s3_object" "index_html" {
+  bucket       = aws_s3_bucket.frontend_bucket.id
+  key          = "index.html"
+  source       = "index.html"
+  content_type = "text/html"
+}
+
+
+
 ##################################
 ##################################
 output "repository_url" {

@@ -3,7 +3,7 @@ const serverless = require('serverless-http');
 const app = express();
 
 app.get('*', (req, res) => {
-  res.send('Hello, World!');
+  res.send('Hello World From ECR!');
 });
 
 // Export the Lambda handler
