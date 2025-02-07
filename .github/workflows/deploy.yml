@@ -3,7 +3,7 @@ name: Deploy to AWS
 on:
   push:
     paths:
-      - "index.js"
+      - ".github/workflows/deploy.yml"
     branches:
       - main
 
