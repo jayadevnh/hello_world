@@ -38,7 +38,7 @@ resource "null_resource" "build_and_push_docker_image" {
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${aws_ecr_repository.my_ecr_repo.repository_url}
     
     # Build Docker Image
-    docker build -t ${aws_ecr_repository.my_ecr_repo.repository_url}:latest .
+    docker build -t ${aws_ecr_repository.my_ecr_repo.repository_url}:latest ./backend
 
     # Push Docker Image to ECR
     docker push ${aws_ecr_repository.my_ecr_repo.repository_url}:latest
@@ -151,6 +151,7 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   prevent_user_existence_errors = "ENABLED"
 }
 
+# Cognit Domain
 resource "aws_cognito_user_pool_domain" "my_user_pool_domain" {
   domain       = var.domain_name
   user_pool_id = aws_cognito_user_pool.my_user_pool.id
