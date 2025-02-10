@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  
+  paths:
+      - backend/index.js  # Trigger only when this file changes
 
 jobs:
   deploy:
