@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-  
-  paths:
+    paths:
       - backend/index.js  # Trigger only when this file changes
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,7 +30,6 @@ jobs:
         with:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          
 
       - name: Terraform Init
         run: terraform init
