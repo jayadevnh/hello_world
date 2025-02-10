@@ -180,5 +180,5 @@ resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
   depends_on = [aws_cognito_user_pool_client.my_user_pool_client]
 }
 
-###############################
-###############################
+################################
+################################
