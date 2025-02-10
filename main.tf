@@ -34,7 +34,6 @@ data "aws_ecr_authorization_token" "ecr_token" {}
 resource "null_resource" "build_and_push_docker_image" {
   triggers = {
     index_js_hash = filemd5("./backend/index.js")
-    timestamp     = timestamp()
   }
   provisioner "local-exec" {
     command = <<EOT
@@ -74,21 +73,23 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+data "aws_ecr_image" "my_ecr_image" {
+  repository_name = aws_ecr_repository.my_ecr_repo.name
+  image_tag       = "latest"
+  depends_on = [null_resource.build_and_push_docker_image]
+}
+
 # Create Lambda Function Using Container Image
 resource "aws_lambda_function" "my_lambda_function" {
   function_name = "my-container-lambda"
   role          = aws_iam_role.lambda_exec_role.arn
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_ecr_repo.repository_url}:latest"
+  image_uri     = "${aws_ecr_repository.my_ecr_repo.repository_url}@${data.aws_ecr_image.my_ecr_image.image_digest}"
   timeout       = var.lambda_timeout
-
-  # Force update the Lambda function when the Docker image is built
-  lifecycle {
-    create_before_destroy = true
-  }
 
   depends_on = [null_resource.build_and_push_docker_image]
 }
+
 
 # Create API Gateway HTTP API
 resource "aws_apigatewayv2_api" "my_http_api" {
