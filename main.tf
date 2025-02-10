@@ -32,6 +32,9 @@ resource "aws_ecr_repository" "my_ecr_repo" {
 data "aws_ecr_authorization_token" "ecr_token" {}
 
 resource "null_resource" "build_and_push_docker_image" {
+  triggers = {
+    index_js_hash = filemd5("./backend/index.js")
+  }
   provisioner "local-exec" {
     command = <<EOT
     # Authenticate Docker to AWS ECR
