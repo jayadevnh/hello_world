@@ -34,6 +34,7 @@ data "aws_ecr_authorization_token" "ecr_token" {}
 resource "null_resource" "build_and_push_docker_image" {
   triggers = {
     index_js_hash = filemd5("./backend/index.js")
+    timestamp     = timestamp()
   }
   provisioner "local-exec" {
     command = <<EOT
@@ -80,6 +81,11 @@ resource "aws_lambda_function" "my_lambda_function" {
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_ecr_repo.repository_url}:latest"
   timeout       = var.lambda_timeout
+
+  # Force update the Lambda function when the Docker image is built
+  lifecycle {
+    create_before_destroy = true
+  }
 
   depends_on = [null_resource.build_and_push_docker_image]
 }
