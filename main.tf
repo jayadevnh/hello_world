@@ -2,7 +2,7 @@ provider "aws" {
   region = var.region
 }
 
-############################################
+########## State File Backend S3 ##########
 
 # Configure the S3 backend
 terraform {
@@ -13,7 +13,7 @@ terraform {
   }
 }
 
-############################################
+########## ECR Repo and Docker Image ##########
 
 resource "aws_ecr_repository" "my_ecr_repo" {
   name = "my-app-repo" # Replace with your repository name
@@ -48,6 +48,8 @@ resource "null_resource" "build_and_push_docker_image" {
     EOT
   }
 }
+
+########## LAMBDA FUNCTION ##########
 
 # Lambda Function Role
 resource "aws_iam_role" "lambda_exec_role" {
@@ -90,6 +92,7 @@ resource "aws_lambda_function" "my_lambda_function" {
   depends_on = [null_resource.build_and_push_docker_image]
 }
 
+########## API GATEWAY ##########
 
 # Create API Gateway HTTP API
 resource "aws_apigatewayv2_api" "my_http_api" {
@@ -134,6 +137,8 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   source_arn = "${aws_apigatewayv2_api.my_http_api.execution_arn}/*/*"
 }
 
+########## COGNITO ##########
+
 # Cognito User Pool
 resource "aws_cognito_user_pool" "my_user_pool" {
   name                     = "my-user-pool"
@@ -167,6 +172,8 @@ resource "aws_cognito_user_pool_domain" "my_user_pool_domain" {
   user_pool_id = aws_cognito_user_pool.my_user_pool.id
 }
 
+########## JWT Token Authorizer ##########
+
 resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
   api_id           = aws_apigatewayv2_api.my_http_api.id
   authorizer_type  = "JWT"
@@ -179,6 +186,3 @@ resource "aws_apigatewayv2_authorizer" "cognito_authorizer" {
 
   depends_on = [aws_cognito_user_pool_client.my_user_pool_client]
 }
-
-################################
-################################
