@@ -1,4 +1,9 @@
-Here's a sample `README.md` file that outlines how to use the provided Terraform configuration, including details on setting up authentication using OpenID Connect (OIDC) from GitHub to AWS and integrating GitHub Actions for CI/CD. 
+# Hello World!
+
+### Architecture Diagram
+![Alt Text](./diagram.png)
+
+Here's a `README.md` file that outlines how to use the provided Terraform configuration, including details on setting up authentication using OpenID Connect (OIDC) from GitHub to AWS and integrating GitHub Actions for CI/CD. 
 
 ```markdown
 # Terraform AWS Infrastructure
