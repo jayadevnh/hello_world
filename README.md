@@ -1,132 +1,170 @@
-# Hello World!
-
-### Architecture Diagram
-![Alt Text](./diagram.png)
-
-Here's a `README.md` file for your GitHub repository:
+Here's a sample `README.md` file that outlines how to use the provided Terraform configuration, including details on setting up authentication using OpenID Connect (OIDC) from GitHub to AWS and integrating GitHub Actions for CI/CD. 
 
 ```markdown
-# Hello, World! Web Application on AWS
+# Terraform AWS Infrastructure
 
-This project demonstrates how to create a **serverless web application** on AWS that displays "Hello, World!" using **AWS Lambda**, **ECR**, **API Gateway**, and **Cognito** for Single Sign-On (SSO) authentication. The deployment process is automated using **Terraform** and **GitHub Actions** for CI/CD.
-
-## Architecture
-
-- **AWS Lambda**: Serverless function that runs the web application.
-- **Amazon ECR**: Containerized web app hosted in AWS Elastic Container Registry.
-- **API Gateway**: Exposes the Lambda function to the internet.
-- **Amazon Cognito**: Manages Single Sign-On (SSO) authentication.
-- **Terraform**: Infrastructure as Code to automate AWS resource creation.
-- **GitHub Actions**: CI/CD pipeline to automate deployment.
+This repository contains a Terraform configuration to set up an AWS infrastructure that includes:
+- An Amazon ECR repository for Docker images
+- An AWS Lambda function using a Docker image
+- An API Gateway to expose the Lambda function
+- An Amazon Cognito User Pool for user authentication
+- GitHub OIDC for authentication to AWS
 
 ## Prerequisites
 
-Before you begin, ensure you have the following:
+- [Terraform](https://www.terraform.io/downloads.html) installed
+- [AWS CLI](https://aws.amazon.com/cli/) installed and configured
+- Docker installed and running
+- A GitHub repository for CI/CD
 
-- **AWS Account**: You must have an active AWS account with IAM permissions to create Lambda, API Gateway, ECR, and Cognito resources.
-- **AWS CLI**: Ensure that the AWS CLI is installed and configured on your local machine.
-- **Terraform**: Install Terraform to manage infrastructure.
-- **Docker**: Required to build and push the application container.
-- **GitHub Account**: For the GitHub repository and setting up GitHub Actions CI/CD pipeline.
+## Variables
 
-## Getting Started
+Make sure to define the following variables in a `variables.tf` file or directly in the Terraform configuration:
 
-### Clone the Repository
+```hcl
+variable "region" {
+  description = "AWS region to deploy resources"
+  default     = "us-east-1"
+}
 
-```bash
-git clone https://github.com/<your-username>/hello-world-app.git
-cd hello-world-app
+variable "lambda_timeout" {
+  description = "Timeout for the Lambda function in seconds"
+  default     = 30
+}
+
+variable "domain_name" {
+  description = "Cognito User Pool domain name"
+  default     = "my-cognito-domain"
+}
 ```
 
-### Set Up AWS Credentials
+## Setup Instructions
 
-Add the following AWS credentials as **GitHub Secrets** in your repository:
+1. Clone this repository to your local machine.
 
-- `AWS_ACCOUNT_ID`
-- `AWS_REGION` (e.g., `us-east-1`)
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
+    ```bash
+    git clone <repository-url>
+    cd <repository-directory>
+    ```
 
-### Deploying Infrastructure
+2. Initialize Terraform.
 
-1. Navigate to the **terraform** directory:
+    ```bash
+    terraform init
+    ```
 
-   ```bash
-   cd terraform
-   ```
+3. Plan the deployment.
 
-2. Initialize Terraform:
+    ```bash
+    terraform plan
+    ```
 
-   ```bash
-   terraform init
-   ```
+4. Apply the configuration to create the resources.
 
-3. Apply the Terraform plan to deploy the infrastructure:
+    ```bash
+    terraform apply
+    ```
 
-   ```bash
-   terraform apply -auto-approve
-   ```
+5. Confirm the changes by typing `yes` when prompted.
 
-   This will create the following resources:
-   - ECR repository for the container image.
-   - Lambda function to run the containerized application.
-   - API Gateway to expose the Lambda function to the internet.
-   - Cognito user pool (for Single Sign-On authentication).
+## Authentication Using OIDC from GitHub
 
-4. Once the deployment is complete, you can retrieve the **API endpoint** from the Terraform output.
+To enable authentication using OpenID Connect (OIDC) from GitHub to AWS, follow these steps:
 
-### Build and Push Docker Image to ECR
+### Create a GitHub OIDC Provider in AWS
 
-1. Log in to Amazon ECR:
+1. Go to the IAM console in AWS.
+2. Under "Identity providers", choose "Add provider".
+3. For Provider Type, choose "OpenID Connect".
+4. For Provider URL, enter `https://token.actions.githubusercontent.com`.
+5. For Audience, enter `sts.amazonaws.com`.
 
-   ```bash
-   aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.<your-region>.amazonaws.com
-   ```
+### Create an IAM Role for GitHub Actions
 
-2. Build the Docker image:
+1. Create a new IAM role with the following trust relationship policy:
 
-   ```bash
-   docker build -t <your-account-id>.dkr.ecr.<your-region>.amazonaws.com/hello-world-app .
-   ```
+    ```json
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Federated": "arn:aws:iam::<your_account_id>:oidc-provider/token.actions.githubusercontent.com"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+            "StringEquals": {
+              "token.actions.githubusercontent.com:sub": "repo:<owner>/<repo>:ref:refs/heads/<branch>"
+            }
+          }
+        }
+      ]
+    }
+    ```
 
-3. Push the Docker image to ECR:
+2. Attach necessary policies to the role to allow it to interact with AWS services (e.g., Lambda execution permissions).
 
-   ```bash
-   docker push <your-account-id>.dkr.ecr.<your-region>.amazonaws.com/hello-world-app
-   ```
+### GitHub Actions Configuration
 
-### CI/CD with GitHub Actions
+Create a `.github/workflows/ci.yml` file in your GitHub repository:
 
-Once you have set up the repository and pushed the changes, **GitHub Actions** will automatically run the deployment workflow:
+```yaml
+name: CI/CD Pipeline
 
-1. The workflow will trigger on pushes to the `main` branch.
-2. It will:
-   - Build and push the Docker image to Amazon ECR.
-   - Deploy the infrastructure using Terraform.
+on:
+  push:
+    branches:
+      - main
 
-You can monitor the workflow progress on the **Actions** tab of your GitHub repository.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-### Access the Application
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-Once deployed, you can access the web application through the **API Gateway** endpoint provided by Terraform. You will need to authenticate using Amazon Cognito (SSO) to view the "Hello, World!" message.
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
 
-## Clean Up
+      - name: Terraform Init
+        run: terraform init
 
-To remove the resources deployed by Terraform:
+      - name: Terraform Plan
+        run: terraform plan
 
-```bash
-terraform destroy -auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
 ```
 
-## Contributing
+Make sure to add your AWS credentials as secrets in your GitHub repository (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`).
 
-Feel free to fork this repository and contribute to it. You can open issues, create pull requests, or suggest enhancements.
+## Cleanup
+
+To remove all resources created by Terraform, run:
+
+```bash
+terraform destroy
+```
+
+Confirm the changes by typing `yes` when prompted.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Terraform](https://www.terraform.io/)
+- [AWS](https://aws.amazon.com/)
+- [GitHub Actions](https://docs.github.com/en/actions)
 ```
 
----
-
-This `README.md` provides a comprehensive guide to set up, deploy, and manage your AWS infrastructure for the serverless web app. Let me know if you'd like any additional sections or modifications!
+Feel free to adjust the content and instructions as necessary to fit your project's needs. If you have any specific changes or additions you'd like to make, let me know!
