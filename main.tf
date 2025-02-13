@@ -78,7 +78,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 data "aws_ecr_image" "my_ecr_image" {
   repository_name = aws_ecr_repository.my_ecr_repo.name
   image_tag       = "latest"
-  depends_on = [null_resource.build_and_push_docker_image]
+  depends_on      = [null_resource.build_and_push_docker_image]
 }
 
 # Create Lambda Function Using Container Image
@@ -155,15 +155,16 @@ resource "aws_cognito_user_pool" "my_user_pool" {
 
 # Cognito App Client
 resource "aws_cognito_user_pool_client" "my_user_pool_client" {
-  name                          = "my-app-client"
-  user_pool_id                  = aws_cognito_user_pool.my_user_pool.id
-  allowed_oauth_flows           = ["implicit"]
-  explicit_auth_flows           = ["ALLOW_USER_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
-  generate_secret               = true
-  allowed_oauth_scopes          = ["email", "openid", "phone"]
-  callback_urls                 = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
-  supported_identity_providers  = ["COGNITO"]
-  prevent_user_existence_errors = "ENABLED"
+  name                                 = "my-app-client"
+  user_pool_id                         = aws_cognito_user_pool.my_user_pool.id
+  allowed_oauth_flows                  = ["implicit"]
+  explicit_auth_flows                  = ["ALLOW_USER_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
+  generate_secret                      = true
+  allowed_oauth_scopes                 = ["email", "openid", "phone"]
+  callback_urls                        = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
+  supported_identity_providers         = ["COGNITO"]
+  prevent_user_existence_errors        = "ENABLED"
+  allowed_oauth_flows_user_pool_client = true
 }
 
 # Cognit Domain

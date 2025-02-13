@@ -32,6 +32,6 @@ output "cognito_issuer_url" {
 }
 
 output "cognito_hosted_ui_login_url" {
-  value = "https://${aws_cognito_user_pool_domain.my_user_pool_domain.domain}.auth.${var.region}.amazoncognito.com/login"
+  value       = "https://${aws_cognito_user_pool_domain.my_user_pool_domain.domain}.auth.${var.region}.amazoncognito.com/login"
   description = "URL for the Cognito Hosted UI login page"
 }
