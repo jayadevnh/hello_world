@@ -164,6 +164,7 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   callback_urls                 = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
   supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
+   allowed_oauth_flows_user_pool_client = true
 }
 
 # Cognit Domain
