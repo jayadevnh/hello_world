@@ -155,7 +155,6 @@ resource "aws_cognito_user_pool" "my_user_pool" {
 
 # Cognito App Client
 resource "aws_cognito_user_pool_client" "my_user_pool_client" {
-<<<<<<< HEAD
   name                                 = "my-app-client"
   user_pool_id                         = aws_cognito_user_pool.my_user_pool.id
   allowed_oauth_flows                  = ["implicit"]
@@ -166,18 +165,6 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   supported_identity_providers         = ["COGNITO"]
   prevent_user_existence_errors        = "ENABLED"
   allowed_oauth_flows_user_pool_client = true
-=======
-  name                          = "my-app-client"
-  user_pool_id                  = aws_cognito_user_pool.my_user_pool.id
-  allowed_oauth_flows           = ["implicit"]
-  explicit_auth_flows           = ["ALLOW_USER_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
-  generate_secret               = true
-  allowed_oauth_scopes          = ["email", "openid", "phone"]
-  callback_urls                 = ["${aws_apigatewayv2_api.my_http_api.api_endpoint}/v1/helloworld"] # Change to your API endpoint
-  supported_identity_providers  = ["COGNITO"]
-  prevent_user_existence_errors = "ENABLED"
-   allowed_oauth_flows_user_pool_client = true
->>>>>>> 5d34251b81b05b1fcb1d5de65c87fc76d99ecc33
 }
 
 # Cognit Domain
