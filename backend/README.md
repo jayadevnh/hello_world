@@ -30,6 +30,7 @@ No resources.
 | <a name="input_region"></a> [region](#input\_region) | The AWS region to deploy resources. | `string` | `"eu-central-1"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID | `string` | `"vpc-0dd1c26ad7ba8cc5f"` | no |
 | <a name="input_subnet_ids"></a> [subnet\_id](#input\_vpc\_id) | Private Subnet IDs | `string` | `"subnet-0968ae4ed263f8177"` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_vpc\_id) | Private Subnet IDs | `list(string)` | `["subnet-0968ae4ed263f8177", "subnet-1234abcd5678efgh", "subnet-8765efgh4321abcd"]` | no |
 
 ## Outputs
 
