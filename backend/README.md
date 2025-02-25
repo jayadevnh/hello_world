@@ -29,7 +29,7 @@ No resources.
 | <a name="input_product_version"></a> [product\_version](#input\_product\_version) | The version of the module to deploy. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | The AWS region to deploy resources. | `string` | `"eu-central-1"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID | `string` | `"vpc-0dd1c26ad7ba8cc5f"` | no |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_vpc\_id) | Private Subnet IDs | `string` | `"subnet-0968ae4ed263f8177"\n"subnet-019464a80a3ac5b33"` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_vpc\_id) | Private Subnet IDs | `string` | `"subnet-0968ae4ed263f8177", "subnet-019464a80a3ac5b33"` | no |
 
 ## Outputs
 
