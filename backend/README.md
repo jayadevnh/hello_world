@@ -59,7 +59,6 @@ Below are the parameters that must be passed for this module:
   - **Private**: Creates only a VPC with 2 private subnets.
 
 ### EnableCGNat
-- **Allowed Values**: Yes, No  
   Add a non-routable CGNAT CIDR of `100.64.0.0/x` to the primary VPC. This is not routable to on-premises but is suitable for high IP usage workloads such as EKS.
 
 ### CGNatCIDR
