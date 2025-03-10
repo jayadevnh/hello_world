@@ -120,6 +120,8 @@ module "vpc_with_cidr" {
   region          = "eu-central-1"
 }
 
+```
+
 Advance Example :
 
 ```hcl
