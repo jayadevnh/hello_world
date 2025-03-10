@@ -36,7 +36,7 @@ This repository has the capability to launch these products individually or in c
 
 <!-- tocstop -->
 
-## A: vpc-base-with-reserved-cidr
+## A : vpc-base-with-reserved-cidr
 
 **User Scenario**: User already has a VPC and wants to reserve CIDR for it.
 
@@ -67,7 +67,7 @@ Below are the parameters that must be passed for this module:
   - **Min Value**: 16  
   - **Max Value**: 28  
 
-## B: vpc-add-reserved-cidr
+## B : vpc-add-reserved-cidr
 
 **User Scenario**: User already has a VPC and wants to reserve CIDR for it.
 
@@ -84,7 +84,7 @@ Below are the parameters that must be passed for this module:
 ### VPC
 - **Id**: The ID of the existing VPC.
 
-## C: Attach VPC to Transit Gateway
+## C : Attach VPC to Transit Gateway
 
 **User Scenario**: User wants to connect the VPC to the Transit Gateway.
 
