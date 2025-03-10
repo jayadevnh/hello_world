@@ -89,7 +89,7 @@ Below are the parameters that must be passed for this module:
 
 **User Scenario**: User wants to connect the VPC to the Transit Gateway.
 
-This module attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center. Central services should eventually include things like Mulesoft, Ocelot, and Managed AD. Documentation about data centers can be found at "". If you use this on a VPC that is already connected to the Transit VPC, it will disrupt existing connections. You'll need to request changes from the firewall team before your hosts can connect to hosts located in the local data center.
+This module attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center. Central services should eventually include things like Mulesoft, Ocelot, and Managed AD. Documentation about data centers can be found at "https://docs.int.bayer.com/cloud/smart-aws/smart-2.0/datacenter/". If you use this on a VPC that is already connected to the Transit VPC, it will disrupt existing connections. You'll need to request changes from the firewall team before your hosts can connect to hosts located in the local data center.
 
 Below are the parameters that must be passed for this module:
 
@@ -120,8 +120,6 @@ module "vpc_with_cidr" {
   reserve_cidr    = true
   region          = "eu-central-1"
 }
-
-```
 
 Advance Example :
 
