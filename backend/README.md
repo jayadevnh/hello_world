@@ -1,8 +1,8 @@
 # Launch below AWS Service Catalog Products using Terraform Module
 
-- A: [vpc-base-with-reserved-cidr](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/vpc-base-with-reserved-cidr/#create-a-base-vpc-with-reserved-cidr)
-- B: [vpc-add-reserved-cidr](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/vpc-base-with-reserved-cidr)
-- C: [Attach VPC to Transit Gateway](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/transit-gateway/#how-to-attach-transit-gateway-to-your-vpc)
+- A : [VPC with Reserved CIDR](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/vpc-base-with-reserved-cidr/#create-a-base-vpc-with-reserved-cidr)
+- B : [Add Reserved CIDR to VPC](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/vpc-base-with-reserved-cidr)
+- C : [Attach VPC to Transit Gateway](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/transit-gateway/#how-to-attach-transit-gateway-to-your-vpc)
 
 This Terraform module can provision three products from the AWS Service Catalog. The first module provisions a VPC with an optional secondary CIDR block, allowing you to enable Carrier-Grade NAT (CGNAT) for the secondary CIDR. The module can be customized to deploy a VPC with different subnet layouts, including an empty VPC or VPCs with both private and public subnets. It supports enabling or disabling CGNAT with configurable parameters for CIDR size and subnet layout.
 
