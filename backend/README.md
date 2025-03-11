@@ -4,11 +4,13 @@
 - B : [Add Reserved CIDR to VPC](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/vpc-base-with-reserved-cidr)
 - C : [Attach VPC to Transit Gateway](https://docs.int.bayer.com/cloud/smart-aws/offering/service-catalog/transit-gateway/#how-to-attach-transit-gateway-to-your-vpc)
 
-This Terraform module can provision three products from the AWS Service Catalog. The first module provisions a VPC with an optional secondary CIDR block, allowing you to enable Carrier-Grade NAT (CGNAT) for the secondary CIDR. The module can be customized to deploy a VPC with different subnet layouts, including an empty VPC or VPCs with both private and public subnets. It supports enabling or disabling CGNAT with configurable parameters for CIDR size and subnet layout.
+This Terraform module can provision three products from the AWS Service Catalog. 
 
-The second module adds reserved CIDR to an existing VPC.
+The first module (A) provisions a VPC with an optional secondary CIDR block, allowing you to enable Carrier-Grade NAT (CGNAT) for the secondary CIDR. The module can be customized to deploy a VPC with different subnet layouts, including an empty VPC or VPCs with both private and public subnets. It supports enabling or disabling CGNAT with configurable parameters for CIDR size and subnet layout.
 
-The third module attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center.
+The second module (B) adds reserved CIDR to an existing VPC.
+
+The third module (C) attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center.
 
 Let's consider the following AWS Service Catalog products as A, B, and C:
 
