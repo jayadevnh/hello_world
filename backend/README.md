@@ -1,48 +1,252 @@
----
-title: SCA Terraform Modules
----
+# Launch below AWS Service Catalog Products using Terraform Module
 
-This page contains the list of modules and templates provided by SMART Cloud Automation
-team. The modules are designed to be used in SMART environments and provide compliance
-with Bayer guidelines and best practices. You can also browse the modules on
-[GitHub](https://github.com/search?q=topic%3Aterraform-module+topic%3Asmart-cloud-automation+org%3Abayer-int+fork%3Atrue&type=repositories).
+## A. VPC with Reserved CIDR
+## B. Add Reserved CIDR to VPC
+## C. Attach VPC to Transit Gateway
 
-See the guidelines for contributing in the Terraform module
-template [repository](https://github.com/bayer-int/smart-terraform-module-template) if
-you want to contribute some changes to existing modules or propose a new module to this
-catalog.
+This Terraform module can provision three products from the AWS Service Catalog. The first module provisions a VPC with an optional secondary CIDR block, allowing you to enable Carrier-Grade NAT (CGNAT) for the secondary CIDR. The module can be customized to deploy a VPC with different subnet layouts, including an empty VPC or VPCs with both private and public subnets. It supports enabling or disabling CGNAT with configurable parameters for CIDR size and subnet layout.
 
-## Azure
+The second module adds reserved CIDR to an existing VPC.
 
-| Name                  | Module                                                                                    | Description                                                                                                                                                           |
-| --------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Virtual Machine (VM) | [bayer-int/smart-azure-vm-terraform](https://github.com/bayer-int/smart-azure-vm-terraform) | A Terraform module for provisioning new Virtual Machines in the owner's account. The IaC can deploy Linux and Windows Machines running Tanium and Crowstrike on them. |
-| API Management | [bayer-int/smart-azure-api-gateway-terraform](https://github.com/bayer-int/smart-azure-api-gateway-terraform) | A Terraform module for provisioning Azure API Management service with one of more APIs configured. In addition it allows to publish your API specification and documentation to AnyPoint Exchange Catalog. |
-| Virtual Network (VNet) | [bayer-int/smart-azure-vnet-terraform](https://github.com/bayer-int/smart-azure-vnet-terraform) | A Terraform module that deploys a Virtual Network in Azure with a subnet or a set of subnets passed in as input parameters. |
-| Backup Service | [bayer-int/smart-azure-backup-terraform](https://github.com/bayer-int/smart-azure-backup-terraform) | A Terraform module that deploys Azure Recovery Services Vault with an Azure Policy for easy enrollment of VMs into backup. |
-| Microsoft SQL Server | [bayer-int/smart-azure-mssql-db-terraform](https://github.com/bayer-int/smart-azure-mssql-db-terraform) | A Terraform module for deploying and managing Microsoft SQL Server (MSSQL) databases in Azure |
-| PostgreSQL Server | [bayer-int/smart-azure-postgresql-db-terraform](https://github.com/bayer-int/smart-azure-postgresql-db-terraform) | A Terraform module for deploying and managing PostgreSQL Flexible Server databases in Azure |
-| MySQL Server | [bayer-int/smart-azure-mysql-db-terraform](https://github.com/bayer-int/smart-azure-mysql-db-terraform) | A Terraform module for deploying and managing MySQL Flexible Server databases in Azure |
-| Key Vault | [bayer-int/smart-azure-key-vault-terraform](https://github.com/bayer-int/smart-azure-key-vault-terraform) | A Terraform module for deploying and managing Key Vault in Azure |
+The third module attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center.
 
-## AWS
+Let's consider the following AWS Service Catalog products as A, B, and C:
 
-| Name                  | Module                                                                                | Description                                                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Virtual Machine (EC2 instance) | [bayer-int/smart-aws-vm-terraform](https://github.com/bayer-int/smart-aws-vm-terraform) | A Terraform module for provisioning new Virtual Machines in the owner's account. The IaC can deploy Linux and Windows Machines running Tanium and Crowstrike on them. |
-| API Gateway | [bayer-int/smart-aws-api-gateway-http-terraform](https://github.com/bayer-int/smart-aws-api-gateway-http-terraform) | A Terraform module for provisioning AWS API Gateway service with one of more APIs configured. In addition it allows to publish your API specification and documentation to AnyPoint Exchange Catalog. |
-| Virtual Private Cloud (VPC) | [bayer-int/smart-aws-vpc-terraform](https://github.com/bayer-int/smart-aws-vpc-terraform) | A Terraform module that creates a Virtual Private Cloud (VPC) in AWS with configurable subnets and additional resources. |
-| S3 bucket | [bayer-int/smart-aws-s3-bucket-terraform](https://github.com/bayer-int/smart-aws-s3-bucket-terraform) | A Terraform module that provisions an AWS S3 bucket while also handling the management and configuration of different features associated with it. |
-| [ECS Cluster](./ecs.md) | [bayer-int/smart-aws-ecs-terraform](https://github.com/bayer-int/smart-aws-ecs-terraform) | A Terraform module to create ESC cluster and build applications. Clusters and Applications can be deployed apart. There is compatibility with [fg-deploy](../../smart-aws/kb/how-to/fargate.md) |
-| OIDC Provider | [bayer-int/smart-aws-github-oidc-provider](https://github.com/bayer-int/smart-aws-github-oidc-provider). | A Terraform module that provisions an AWS Service Catalog product with predefined parameters. |
-| EKS OIDC Provider | [bayer-int/smart-aws-eks-oidc-provider](https://github.com/bayer-int/smart-aws-eks-oidc-provider). | A Terraform module that provisions an AWS Service Catalog Product with EKS Cluster and VPC as predefined parameters. |
-| VPC, Additional CIDR and TGW | [bayer-int/smart-aws-bayer-vpc-products-terraform](https://github.com/bayer-int/smart-aws-bayer-vpc-products-terraform). | A Terraform module for provisioning AWS Service Catalog Products. VPC with Reserved and Secondary CIDR, add CIDR to Existing VPC, and attach Transit Gateway to VPC. Also can deploy products in combination with predefined parameters. |
+- **A**: Create VPC Base With Reserved CIDR - User wants to create a VPC with reserved CIDR.
+- **B**: VPC Add Reserved CIDR - User already has a VPC and wants to reserve CIDR for it.
+- **C**: Attach VPC to Transit Gateway - User wants to connect the VPC to the Transit Gateway.
+- **A+C**: Create a new VPC with reserved CIDR and attach this VPC to the Transit Gateway.
+- **B+C**: Add new reserved CIDR and attach the Transit Gateway to an existing VPC
 
-## Google Cloud Platform
+As mentioned above, this repository has the capability to launch these products individually or in combination as follows:
 
-| Name                  | Module                                                                                | Description                                                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| WAF Rules | [bayer-int/smart-gcp-waf-baseline](https://github.com/bayer-int/smart-gcp-waf-baseline/) | Terraform module to create a set of Web ACLs [mandated](https://bayergroup.sharepoint.com/:w:/r/sites/CloudDevOpsInfrastructureSecurityProject/Shared%20Documents/General/2023/Execution/WAF%20and%20Container%20Security/WAF%20Strategy%20and%20Overview.docx?d=w8ba8f4c5387d4679b86f55c181816f53&csf=1&web=1&e=i2D9Mf) by CSRM in your GCP project. |
-| API Gateway | [bayer-int/smart-gcp-api-gateway-terraform](https://github.com/bayer-int/smart-gcp-api-gateway-terraform) | A Terraform module for provisioning GCP API Gateway service with an OpenAPI configuration. In addition it allows to publish your API specification and documentation to AnyPoint Exchange Catalog. |
-| Virtual Private Cloud (VPC) | [bayer-int/smart-gcp-vpc-terraform](https://github.com/bayer-int/smart-gcp-vpc-terraform) | A Terraform module that creates a Virtual Private Cloud (VPC) in GCP with configurable subnets and additional resources. |
-| Service Account role assignment | [bayer-int/smart-gcp-sa-roles-terraform](https://github.com/bayer-int/smart-gcp-sa-roles-terraform) | A Terraform module for assigning roles to Service Account for deployment in Google Cloud |
+1. A
+2. A + C
+3. B
+4. B + C
+5. C
+
+<!-- toc -->
+
+## Table of contents
+
+-   [A. VPC with Reserved CIDR](#a-vpc-with-reserved-cidr)
+-   [B. Add Reserved CIDR to VPC](#b-add-reserved-cidr-to-vpc)
+-   [C. Attach VPC to Transit Gateway](#c-attach-vpc-to-transit-gateway)
+-   [A : Create VPC Base With Reserved CIDR](#a--create-vpc-base-with-reserved-cidr)
+    -   [VpcSize](#vpcsize)
+    -   [VpcDescription](#vpcdescription)
+    -   [SubnetLayout](#subnetlayout)
+    -   [EnableCGNat](#enablecgnat)
+    -   [CGNatCIDR](#cgnatcidr)
+-   [B : VPC Add Reserved CIDR](#b--vpc-add-reserved-cidr)
+    -   [CidrBlock](#cidrblock)
+    -   [CidrBlockDescription](#cidrblockdescription)
+    -   [VPC](#vpc)
+-   [C : Attach VPC to Transit Gateway](#c--attach-vpc-to-transit-gateway)
+    -   [VpcId](#vpcid)
+    -   [SubnetIds](#subnetids)
+-   [A + C and B + C: Create Resources in Combination](#a--c-and-b--c-create-resources-in-combination)
+-   [Example Use Case](#example-use-case)
+    -   [Basic Example:](#basic-example)
+    -   [Advance Example :](#advance-example-)
+-   [Telemetry Tags](#telemetry-tags)
+    -   [Telemetry Tags Configuration](#telemetry-tags-configuration)
+-   [Limitations](#limitations)
+-   [Requirements](#requirements)
+-   [Resources](#resources)
+-   [Inputs](#inputs)
+-   [Outputs](#outputs)
+
+<!-- tocstop -->
+
+## A : Create VPC Base With Reserved CIDR
+
+**User Scenario**: User wants to create new VPC with reserved CIDR
+
+This module allows the creation of a VPC with an optional secondary CIDR block. By default, the secondary CIDR block does not enable CGNAT. If enabled, CGNAT will use a non-routable CIDR block of `100.64.0.0/16` for the secondary CIDR.
+
+Below are the parameters that must be passed for this module:
+
+### VpcSize
+- **Allowed Values**: 24, 25, 26
+  The subnet mask for the VPC CIDR block. A value of 24 will reserve a CIDR block with 256 IP addresses. Entering 25 will reserve 128 IP addresses, and 26 will reserve 64 IP addresses. Please be careful while selecting the CIDR block as we are running out of CIDR blocks. If you don't need a large CIDR block, consider using a smaller CIDR block or adding a secondary non-routable CIDR below.
+
+  **If you feel you need a larger VPC, please contact the Cloud Engineering team.**
+
+### VpcDescription
+- A brief description of this VPC.
+
+### SubnetLayout
+- **Allowed Values**: Empty, PrivatePublic, Private
+  Type of configuration:
+  - **Empty**: Creates an empty VPC.
+  - **PrivatePublic**: Creates a VPC with 2 public and 2 private subnets and an internet gateway.
+  - **Private**: Creates only a VPC with 2 private subnets.
+
+### EnableCGNat
+  Add a non-routable CGNAT CIDR of `100.64.0.0/x` to the primary VPC. This is not routable to on-premises but is suitable for high IP usage workloads such as EKS.
+
+### CGNatCIDR
+- CIDR size. Can be between `100.64.0.0/16` and `100.64.0.0/28`
+  - **Default**: 16
+  - **Min Value**: 16
+  - **Max Value**: 28
+
+## B : VPC Add Reserved CIDR
+
+**User Scenario**: User already has a VPC and wants to reserve CIDR for it.
+
+This module adds reserved CIDR to your existing VPC.
+
+Below are the parameters that must be passed for this module:
+
+### CidrBlock
+- **Allowed Values**: 24, 25, 26
+
+### CidrBlockDescription
+- A brief description of the VPC.
+
+### VPC
+- **Id**: The ID of the existing VPC.
+
+## C : Attach VPC to Transit Gateway
+
+**User Scenario**: User wants to connect the VPC to the Transit Gateway.
+
+This module attaches the specified VPC to the regional transit gateway and provides routing to both the central services and the VPN connected to the local data center. Central services should eventually include things like Mulesoft, Ocelot, and Managed AD. If you use this on a VPC that is already connected to the Transit VPC, it will disrupt existing connections. You'll need to request changes from the firewall team before your hosts can connect to hosts located in the local data center.
+
+Below are the parameters that must be passed for this module:
+
+### VpcId
+- The ID of the VPC to attach to the Transit Gateway.
+
+### SubnetIds
+- IDs of the private subnets to attach to the Transit Gateway (pick one per AZ).
+
+## A + C and B + C: Create Resources in Combination
+
+- **A + C**: Create a new VPC with reserved CIDR and attach this VPC to the Transit Gateway.
+- **B + C**: Add new reserved CIDR and attach the Transit Gateway to an existing VPC.
+
+## Example Use Case
+
+### Basic Example:
+
+```hcl
+module "vpc_with_cidr" {
+  source          = "path/to/module"
+  description     = "Create VPC with Reserved CIDR and Secondary CIDR"
+  size            = 26
+  subnet_layout   = "Private"
+  enable_cgnat    = true
+  cgnat_cidr_size = 16
+  create_vpc      = true
+  reserve_cidr    = true
+  region          = "eu-central-1"
+}
+
+```
+
+### Advance Example :
+
+```hcl
+module "vpc_cidr_tgw" {
+  source          = "path/to/module"
+  description     = "Create VPC with Reserved CIDR and Secondary CIDR. Also Attach Transit Gateway"
+  size            = 26
+  subnet_layout   = "Private"
+  enable_cgnat    = true
+  cgnat_cidr_size = 16
+  create_vpc      = true
+  reserve_cidr    = true
+  attach_tgw      = true
+  region          = "eu-central-1"
+}
+
+```
+## Telemetry Tags
+
+The module must include telemetry tags that provide important metadata and tracking information for resources created by the module. These tags help to identify the source, version, and stage of deployment of the module. It is essential not to forget to add these telemetry tags as default tags to all resources created by the module.
+
+### Telemetry Tags Configuration
+
+The module defines the `telemetry_tags` local variable, which consists of the following tags:
+
+- `ModuleSource`: Specifies the source of the module. By default it is set to "SCA". Please replace this with the name of your team.
+- `ModuleProject`: Represents the name of your project. Replace `<project-name>` with the module repo name.
+- `ModuleVersion`: Specifies the version of the module. Please refer to the [Module versioning](#module-versioning) section for the detailed information.
+- `ModuleStage`: Indicates the stage of deployment for the module. It is recommended to replace `<deployment-id>` with the `stage` variable defined within your module.
+
+To ensure that the telemetry tags are added as default tags for all resources created by the module, make sure to include the necessary code or configuration logic that attaches these tags to the resources appropriately.
+
+# Folder Structure
+
+Here is a folder structure for your Terraform configuration that you might want to follow:
+
+* main.tf: This is the entry point of your configuration where you typically import modules or define core resources.
+* variables.tf: Contains all variable definitions for your project.
+* outputs.tf: Declares the outputs that you want to be returned after applying the Terraform plan.
+* examples/: A folder for various examples:
+* complete/: Contains fully configured setups with complete parameters, representing a production-ready or full deployment example.
+* basic/: Simpler, minimal setup examples that could be used for smaller deployments or testing.
+
+
+## Limitations
+
+* The secondarycidr_cgnat_cidr must be between 100.64.0.0/16 and 100.64.0.0/28.
+* Ensure that the selected CIDR sizes meet your IP address requirements.
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.58.0, < 6.0.0 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2.3 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.0 |
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_servicecatalog_provisioned_product.vpc_add_reserved_cidr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/servicecatalog_provisioned_product) | resource |
+| [aws_servicecatalog_provisioned_product.vpc_base_with_reserved_cidr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/servicecatalog_provisioned_product) | resource |
+| [aws_servicecatalog_provisioned_product.vpc_tgw_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/servicecatalog_provisioned_product) | resource |
+| [null_resource.add_cidr_validation](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.vpc_id_validation](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [random_id.id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_servicecatalog_provisioning_artifacts.vpc_add_reserved_cidr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/servicecatalog_provisioning_artifacts) | data source |
+| [aws_servicecatalog_provisioning_artifacts.vpc_base_with_reserved_cidr](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/servicecatalog_provisioning_artifacts) | data source |
+| [aws_servicecatalog_provisioning_artifacts.vpc_tgw_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/servicecatalog_provisioning_artifacts) | data source |
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_attach_tgw"></a> [attach\_tgw](#input\_attach\_tgw) | Flag to determine to attach VPC to Transit Gateway. | `bool` | `false` | no |
+| <a name="input_cgnat_cidr_size"></a> [cgnat\_cidr\_size](#input\_cgnat\_cidr\_size) | CIDR size. Can be between 100.64.0.0/16 & 100.64.0.0/28 | `number` | `16` | no |
+| <a name="input_cidr_product_version"></a> [cidr\_product\_version](#input\_cidr\_product\_version) | The version of the module to deploy CIDR for VPC. | `string` | `null` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Flag to determine whether to create a new VPC Base Reserverd CIDR. | `bool` | `true` | no |
+| <a name="input_description"></a> [description](#input\_description) | A user-defined description, Must be a non-empty string. | `string` | `"Default Description"` | no |
+| <a name="input_enable_cgnat"></a> [enable\_cgnat](#input\_enable\_cgnat) | A flag that enables or disables Carrier-Grade NAT (CGNAT) for the CIDR block. Add a non-routable CGNAT CIDR of 100.64.0.0/x to the primary VPC. | `bool` | `false` | no |
+| <a name="input_region"></a> [region](#input\_region) | The AWS region to deploy resources. | `string` | `"eu-central-1"` | no |
+| <a name="input_reserve_cidr"></a> [reserve\_cidr](#input\_reserve\_cidr) | Flag to determine to create add CIDR to an existing VPC. | `bool` | `true` | no |
+| <a name="input_size"></a> [size](#input\_size) | The subnet mask for the VPC CIDR block. A value of 24 will reserve a CIDR block with 256 IP addresses. Entering 25 will reserve 128 IP addresses, 26 half as many (64) | `number` | `26` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet IDs to be used. | `list(string)` | `[]` | no |
+| <a name="input_subnet_layout"></a> [subnet\_layout](#input\_subnet\_layout) | Type of configuration: 'Empty': creates an empty VPC, 'PrivatePublic': creates a VPC with 2 public and 2 private subnets and an internet gateway, 'Private' creates only a VPC with 2 private subnets. | `string` | `"Empty"` | no |
+| <a name="input_tgw_product_version"></a> [tgw\_product\_version](#input\_tgw\_product\_version) | The version of the module to deploy Attach VPC to Transit Gateway. | `string` | `null` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The Id of the existing VPC. | `string` | `""` | no |
+| <a name="input_vpc_product_version"></a> [vpc\_product\_version](#input\_vpc\_product\_version) | The version of the modue to deploy for VPC Base with CIDR. | `string` | `null` | no |
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_private_route_table_1"></a> [private\_route\_table\_1](#output\_private\_route\_table\_1) | Private Route Table 1 |
+| <a name="output_private_route_table_2"></a> [private\_route\_table\_2](#output\_private\_route\_table\_2) | Private Route Table 2 |
+| <a name="output_private_subnet_1"></a> [private\_subnet\_1](#output\_private\_subnet\_1) | Private Subnet 1 |
+| <a name="output_private_subnet_2"></a> [private\_subnet\_2](#output\_private\_subnet\_2) | Private Subnet 2 |
+| <a name="output_vpc_cidr"></a> [vpc\_cidr](#output\_vpc\_cidr) | The CIDR range for the overall VPC |
+| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | VPC Info |
+| <a name="output_vpc_id_validation_error"></a> [vpc\_id\_validation\_error](#output\_vpc\_id\_validation\_error) | Shows whether vpc\_id validation passed |
+<!-- END_TF_DOCS -->
